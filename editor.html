@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wristdeal - Kollektion Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="dist/style.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div id="login-screen" class="fixed inset-0 bg-gray-800/90 flex items-center justify-center z-50">
+        <div class="bg-white p-8 rounded-lg shadow-xl text-center w-full max-w-sm">
+            <h1 class="text-2xl font-bold mb-4">wristdeal Editor</h1>
+            <p class="mb-4 text-gray-600">Bitte Passwort eingeben:</p>
+            <input type="password" id="password-input" class="w-full p-2 border rounded-md mb-4 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+            <button id="login-button" class="bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700 w-full">Anmelden</button>
+            <p id="error-message" class="text-red-500 text-sm mt-2 hidden">Falsches Passwort oder Verbindungsfehler.</p>
+        </div>
+    </div>
+
+    <div id="editor-content" class="hidden">
+        <div class="flex h-screen bg-gray-100">
+            <aside class="w-64 bg-gray-800 text-gray-200 flex flex-col">
+                <div class="p-6 text-2xl font-bold text-white border-b border-gray-700">
+                    wristdeal
+                </div>
+                <nav class="flex-1 p-4 space-y-2">
+                    <a href="#" class="nav-link active flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-700 transition-colors" data-target="content-dashboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>
+                        Dashboard
+                    </a>
+                    <a href="#" class="nav-link flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-700 transition-colors" data-target="content-add-product">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" /></svg>
+                        Produkt hinzufügen
+                    </a>
+                    <a href="#" class="nav-link flex items-center gap-3 px-4 py-2 rounded-md hover:bg-gray-700 transition-colors" data-target="content-settings">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533_0 01-.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532_0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532_0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd" /></svg>
+                        Einstellungen
+                    </a>
+                </nav>
+            </aside>
+
+            <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+                <div class="flex justify-between items-center mb-8">
+                    <h1 id="content-title" class="text-2xl md:text-4xl font-bold">Dashboard</h1>
+                    <div id="status" class="text-sm text-gray-500 flex items-center gap-2">
+                         <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                         Verbunden & Live
+                    </div>
+                </div>
+
+                <div id="content-dashboard" class="content-panel">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <div class="space-y-4">
+                            <h2 class="text-xl font-bold">Uhren</h2>
+                            <div id="uhren-list" class="space-y-2"></div>
+                        </div>
+                        <div class="space-y-4">
+                            <h2 class="text-xl font-bold">Fahrzeuge</h2>
+                            <div id="fahrzeuge-list" class="space-y-2"></div>
+                        </div>
+                        <div class="space-y-4">
+                            <h2 class="text-xl font-bold">Zubehör</h2>
+                            <div id="zubehoer-list" class="space-y-2"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-add-product" class="content-panel hidden">
+                    <div class="max-w-2xl mx-auto">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-2xl font-bold mb-4 border-b pb-2">Neues Produkt hinzufügen</h2>
+                            <form id="add-product-form">
+                                <select name="type" id="add-product-type" class="w-full p-2 border rounded-md mb-3" required>
+                                    <option value="uhr">Uhr</option>
+                                    <option value="fahrzeug">Fahrzeug</option>
+                                    <option value="zubehoer">Zubehör</option>
+                                </select>
+                                <input type="text" name="name" placeholder="Name des Produkts" class="w-full p-2 border rounded-md mb-3" required>
+                                <input type="number" name="originalPrice" placeholder="Originalpreis (nur Zahl, z.B. 50000)" class="w-full p-2 border rounded-md mb-3" required>
+                                <input type="number" name="salePrice" placeholder="Rabattpreis (optional, nur Zahl)" class="w-full p-2 border rounded-md mb-3">
+                                <input type="text" name="ricardoLink" placeholder="Ricardo Link (optional)" class="w-full p-2 border rounded-md mb-3">
+                                <div class="flex items-center gap-2 my-3">
+                                    <input type="checkbox" name="popular" id="add-popular" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                                    <label for="add-popular" class="text-sm text-gray-700">Als "Populär" markieren</label>
+                                </div>
+                                <textarea name="description" placeholder="Beschreibung" class="w-full p-2 border rounded-md mb-3" required></textarea>
+                                
+                                <h4 class="font-semibold mb-2 mt-4">Bilder & Videos</h4>
+                                <div class="upload-area mb-3" onclick="this.querySelector('input').click()">
+                                    <input type="file" name="media-upload" class="hidden" multiple accept="image/*,video/*">
+                                    <p class="text-gray-500">Klicken oder Dateien hierher ziehen zum Hochladen.</p>
+                                </div>
+                                <div class="flex gap-2 mb-3">
+                                    <input type="url" placeholder="Oder Bild-URL hier einfügen" class="w-full p-2 border rounded-md">
+                                    <button type="button" class="add-url-btn bg-gray-200 px-4 rounded-md hover:bg-gray-300 text-sm font-semibold">URL +</button>
+                                </div>
+                                <div class="image-preview-container mb-3"></div>
+                                
+                                <h4 class="font-semibold mb-2 mt-4">Spezifikationen</h4>
+                                <div class="specs-container mb-3"></div>
+                                <button type="button" class="add-spec-btn text-sm bg-gray-200 py-1 px-3 rounded-md hover:bg-gray-300 mb-4">+ Eigene Spezifikation hinzufügen</button>
+                                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 flex items-center justify-center gap-2">
+                                    <span class="btn-text">Produkt hinzufügen</span>
+                                    <div class="loader hidden"></div>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="content-settings" class="content-panel hidden">
+                    <div class="max-w-2xl mx-auto space-y-8">
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-2xl font-bold mb-4 border-b pb-2">Seiteneinstellungen</h2>
+                            <form id="edit-settings-form">
+                                <h3 class="text-xl font-semibold mb-4">Kontaktinformationen</h3>
+                                <label class="block mb-2 text-sm font-bold">WhatsApp Nummer</label>
+                                <input type="text" name="whatsappNumber" placeholder="+41 79 123 45 67" class="w-full p-2 border rounded-md mb-4">
+                                <label class="block mb-2 text-sm font-bold">Kontakt E-Mail</label>
+                                <input type="email" name="email" placeholder="ihre.email@beispiel.com" class="w-full p-2 border rounded-md mb-4">
+                                
+                                <h3 class="text-xl font-semibold mb-4 mt-6">WhatsApp Nachrichten</h3>
+                                <label class="block mb-2 text-sm font-bold">Allgemeine WhatsApp Nachricht (Kontakt-Sektion)</label>
+                                <textarea name="whatsappMessageContact" rows="3" class="w-full p-2 border rounded-md mb-4" placeholder="Hallo, ich habe eine Anfrage über wristdeal.com."></textarea>
+                                
+                                <label class="block mb-2 text-sm font-bold">WhatsApp Nachricht für Produkte (Detailansicht)</label>
+                                <textarea id="whatsapp-message-product-input" name="whatsappMessageProduct" rows="4" class="w-full p-2 border rounded-md" placeholder="Hallo, ich interessiere mich für das Produkt [PRODUKTNAME]."></textarea>
+                                <div class="flex items-center justify-between mt-2 mb-6">
+                                    <p class="text-xs text-gray-500">Benutzen Sie den Platzhalter für den Produktnamen.</p>
+                                    <button type="button" id="insert-product-name-btn" class="text-sm bg-indigo-100 text-indigo-700 py-1 px-3 rounded-md hover:bg-indigo-200 font-semibold">[PRODUKTNAME] einfügen</button>
+                                </div>
+
+                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-2">
+                                    <span class="btn-text">Einstellungen speichern</span>
+                                    <div class="loader hidden"></div>
+                                </button>
+                            </form>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-md">
+                            <h2 class="text-2xl font-bold mb-4 border-b pb-2">"Philosophie" Sektion</h2>
+                             <form id="edit-philosophy-form">
+                                <label class="block mb-2 text-sm font-bold">Titel</label>
+                                <input type="text" name="title" class="w-full p-2 border rounded-md mb-3" required>
+                                <label class="block mb-2 text-sm font-bold">Text</label>
+                                <textarea name="description" rows="6" class="w-full p-2 border rounded-md mb-3" required></textarea>
+                                <label class="block mb-2 text-sm font-bold">Bild-URL</label>
+                                <input type="text" name="imageUrl" placeholder="https://beispiel.com/bild.jpg" class="w-full p-2 border rounded-md mb-2">
+                                <input type="file" id="philosophy-image-upload" class="hidden" accept="image/*">
+                                <div class="grid grid-cols-2 gap-2 mb-4">
+                                    <button type="button" onclick="document.getElementById('philosophy-image-upload').click()" class="w-full bg-gray-200 py-2 rounded-md hover:bg-gray-300">Hochladen...</button>
+                                    <button type="button" id="delete-philosophy-image-btn" class="w-full bg-red-100 text-red-700 py-2 rounded-md hover:bg-red-200">Bild löschen</button>
+                                </div>
+                                <img id="philosophy-image-preview" src="" class="w-32 h-32 object-cover rounded-md mb-4 hidden bg-gray-100">
+
+                                <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-2">
+                                    <span class="btn-text">"Philosophie" Sektion speichern</span>
+                                    <div class="loader hidden"></div>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                 <footer class="text-center mt-12 text-sm text-gray-400">
+                    <p>Editor by David Sutter</p>
+                </footer>
+            </main>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="hidden fixed inset-0 bg-gray-900/50 flex items-center justify-center z-50 p-4">
+        <form id="edit-product-form" class="bg-white p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-full overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Produkt bearbeiten</h2>
+                <button type="button" id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <input type="hidden" name="id">
+            <label class="block mb-2 mt-4 text-sm font-bold">Kategorie</label>
+            <select name="type" class="w-full p-2 border rounded-md" required>
+                <option value="uhr">Uhr</option>
+                <option value="fahrzeug">Fahrzeug</option>
+                <option value="zubehoer">Zubehör</option>
+            </select>
+            <label class="block mb-2 mt-4 text-sm font-bold">Name</label>
+            <input type="text" name="name" class="w-full p-2 border rounded-md" required>
+            <label class="block mb-2 mt-4 text-sm font-bold">Originalpreis</label>
+            <input type="number" name="originalPrice" class="w-full p-2 border rounded-md" required>
+            <label class="block mb-2 mt-4 text-sm font-bold">Rabattpreis (optional)</label>
+            <input type="number" name="salePrice" class="w-full p-2 border rounded-md">
+            <label class="block mb-2 mt-4 text-sm font-bold">Ricardo Link (optional)</label>
+            <input type="text" name="ricardoLink" class="w-full p-2 border rounded-md">
+            <div class="flex items-center gap-2 my-3">
+                <input type="checkbox" name="popular" id="edit-popular" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500">
+                <label for="edit-popular" class="text-sm text-gray-700">Als "Populär" markieren</label>
+            </div>
+            <label class="block mb-2 mt-4 text-sm font-bold">Beschreibung</label>
+            <textarea name="description" class="w-full p-2 border rounded-md" required></textarea>
+            
+            <h4 class="font-semibold mb-2 mt-4">Bilder & Videos</h4>
+            <div class="upload-area mb-3" onclick="this.querySelector('input').click()">
+                <input type="file" name="media-upload" class="hidden" multiple accept="image/*,video/*">
+                <p class="text-gray-500">Klicken oder Dateien hierher ziehen zum Hochladen.</p>
+            </div>
+            <div class="flex gap-2 mb-3">
+                <input type="url" placeholder="Oder Bild-URL hier einfügen" class="w-full p-2 border rounded-md">
+                <button type="button" class="add-url-btn bg-gray-200 px-4 rounded-md hover:bg-gray-300 text-sm font-semibold">URL +</button>
+            </div>
+            <div class="image-preview-container mb-3"></div>
+
+            <h4 class="font-semibold mb-2 mt-4">Spezifikationen</h4>
+            <div class="specs-container mb-3"></div>
+            <button type="button" class="add-spec-btn text-sm bg-gray-200 py-1 px-3 rounded-md hover:bg-gray-300 mb-4">+ Spezifikation hinzufügen</button>
+            <div class="flex justify-between items-center mt-6">
+                <button type="button" id="delete-product-btn" class="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700">Produkt löschen</button>
+                <button type="submit" class="bg-indigo-600 text-white py-2 px-6 rounded-md hover:bg-indigo-700 flex items-center justify-center gap-2">
+                    <span class="btn-text">Änderungen speichern</span>
+                    <div class="loader hidden"></div>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, updateDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD4Hq76KUC-XZzsughSnmQ9Af36zrFgp48",
+            authDomain: "wristdeal.firebaseapp.com",
+            projectId: "wristdeal",
+            storageBucket: "wristdeal.appspot.com",
+            messagingSenderId: "251442491535",
+            appId: "1:251442491535:web:0df871ab15b66bd7bf00fa",
+            measurementId: "G-F-F2B9KSTQWS"
+        };
+
+        let db, productsCol, pagesCol;
+        let allProducts = [];
+
+        async function initializeFirebase() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                db = getFirestore(app);
+                await signInAnonymously(auth);
+                productsCol = collection(db, "products");
+                pagesCol = collection(db, "pages");
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                throw new Error("Verbindung zur Datenbank fehlgeschlagen.");
+            }
+        }
+        
+        const PRESET_SPECS = {
+            uhr: ["Marke", "Modell", "Referenz", "Zustand", "Material", "Geschlecht", "Uhrentyp"],
+            fahrzeug: ["Marke", "Modell", "Kilometer", "Erstzulassung", "Letzte MFK", "Getriebeart", "Aufbau", "Treibstoff"],
+            zubehoer: ["Marke", "Modell", "Zustand", "Material", "Kompatibilität"]
+        };
+
+        const loginScreen = document.getElementById('login-screen');
+        const editorContent = document.getElementById('editor-content');
+        const passwordInput = document.getElementById('password-input');
+        const loginButton = document.getElementById('login-button');
+        const errorMessage = document.getElementById('error-message');
+        const editModal = document.getElementById('edit-modal');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const addProductTypeSelector = document.getElementById('add-product-type');
+        
+        const CORRECT_PASSWORD = 'admin123';
+
+        loginButton.addEventListener('click', async () => {
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                loginButton.textContent = "Verbinde...";
+                loginButton.disabled = true;
+                errorMessage.classList.add('hidden');
+                try {
+                    await initializeFirebase();
+                    loginScreen.classList.add('hidden');
+                    editorContent.classList.remove('hidden');
+                    listenForProducts();
+                    listenForPhilosophyContent();
+                    listenForSettings();
+                    setupNavigation();
+                    setupActionButtons();
+                    updatePresetSpecs(addProductTypeSelector.value, document.querySelector('#add-product-form .specs-container'));
+                } catch (error) {
+                    alert(error.message);
+                    loginButton.textContent = "Anmelden";
+                    loginButton.disabled = false;
+                }
+            } else {
+                errorMessage.classList.remove('hidden');
+            }
+        });
+        passwordInput.addEventListener('keyup', (e) => { if (e.key === 'Enter') loginButton.click(); });
+        
+        function setupNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentPanels = document.querySelectorAll('.content-panel');
+            const contentTitle = document.getElementById('content-title');
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.dataset.target;
+                    contentPanels.forEach(panel => panel.classList.add('hidden'));
+                    document.getElementById(targetId).classList.remove('hidden');
+                    navLinks.forEach(navLink => navLink.classList.remove('active'));
+                    link.classList.add('active');
+                    contentTitle.textContent = link.textContent.trim();
+                });
+            });
+        }
+        
+        function setupActionButtons() {
+            document.querySelectorAll('input[name="media-upload"]').forEach(input => {
+                input.addEventListener('change', (e) => handleMediaUpload(e.target.files, e.target.closest('form').querySelector('.image-preview-container')));
+            });
+            
+            document.querySelectorAll('.add-url-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const urlInput = e.target.previousElementSibling;
+                    const url = urlInput.value.trim();
+                    if (url) {
+                        const previewContainer = e.target.closest('form').querySelector('.image-preview-container');
+                        previewContainer.innerHTML += createPreviewItemHTML(url);
+                        urlInput.value = '';
+                    }
+                });
+            });
+            
+            document.getElementById('philosophy-image-upload').addEventListener('change', handlePhilosophyImageUpload);
+            document.querySelector('#edit-philosophy-form [name="imageUrl"]').addEventListener('input', updatePhilosophyImagePreview);
+            document.getElementById('delete-philosophy-image-btn').addEventListener('click', () => {
+                document.querySelector('#edit-philosophy-form [name="imageUrl"]').value = '';
+                updatePhilosophyImagePreview();
+            });
+
+            const insertProductNameBtn = document.getElementById('insert-product-name-btn');
+            insertProductNameBtn.addEventListener('click', () => {
+                const textarea = document.getElementById('whatsapp-message-product-input');
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                const text = textarea.value;
+                const placeholder = '[PRODUKTNAME]';
+                textarea.value = text.substring(0, start) + placeholder + text.substring(end);
+                textarea.focus();
+                textarea.selectionEnd = start + placeholder.length;
+            });
+        }
+
+        async function handleMediaUpload(files, previewContainer) {
+            if (files.length === 0) return;
+            const formData = new FormData();
+            for (const file of files) {
+                formData.append('media[]', file);
+            }
+            try {
+                const response = await fetch('upload.php', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success && result.urls) {
+                    result.urls.forEach(url => {
+                        previewContainer.innerHTML += createPreviewItemHTML(url);
+                    });
+                } else {
+                    alert('Fehler beim Upload: ' + (result.error || 'Unbekannter Fehler'));
+                }
+            } catch (error) {
+                alert('Ein Netzwerkfehler ist aufgetreten.');
+                console.error(error);
+            }
+        }
+        
+        async function handlePhilosophyImageUpload(event) {
+             if (event.target.files.length === 0) return;
+             const file = event.target.files[0];
+             const formData = new FormData();
+             formData.append('imageFile', file);
+             try {
+                const response = await fetch('upload.php', { method: 'POST', body: formData });
+                const result = await response.json();
+                if (result.success && result.url) {
+                    document.querySelector('#edit-philosophy-form [name="imageUrl"]').value = result.url;
+                    updatePhilosophyImagePreview();
+                } else {
+                    alert('Fehler beim Upload: ' + (result.error || 'Unbekannter Fehler'));
+                }
+             } catch(error) {
+                alert('Netzwerkfehler beim Upload.');
+             }
+        }
+        
+        function updatePhilosophyImagePreview() {
+            const imageUrlInput = document.querySelector('#edit-philosophy-form [name="imageUrl"]');
+            const imagePreview = document.getElementById('philosophy-image-preview');
+            const url = imageUrlInput.value.trim();
+            if (url) {
+                imagePreview.src = url;
+                imagePreview.classList.remove('hidden');
+            } else {
+                imagePreview.src = '';
+                imagePreview.classList.add('hidden');
+            }
+        }
+        
+        function createPreviewItemHTML(url) {
+            return `<div class="image-preview-item" data-url="${url}"><img src="${url}" alt="Vorschau" onerror="this.style.display='none'; this.parentElement.style.backgroundColor='#fee2e2';"><div class="remove-btn" onclick="this.parentElement.remove()">×</div></div>`;
+        }
+        
+        function listenForProducts() {
+            onSnapshot(productsCol, (snapshot) => {
+                allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderLists(allProducts);
+            });
+        }
+
+        function listenForSettings() {
+            const settingsDocRef = doc(db, "pages", "settings");
+            const form = document.getElementById('edit-settings-form');
+            onSnapshot(settingsDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    form.querySelector('[name="whatsappNumber"]').value = data.whatsappNumber || '';
+                    form.querySelector('[name="email"]').value = data.email || '';
+                    form.querySelector('[name="whatsappMessageContact"]').value = data.whatsappMessageContact || '';
+                    form.querySelector('[name="whatsappMessageProduct"]').value = data.whatsappMessageProduct || '';
+                }
+            });
+        }
+
+        function listenForPhilosophyContent() {
+            const philosophyDocRef = doc(db, "pages", "philosophy");
+            const form = document.getElementById('edit-philosophy-form');
+            onSnapshot(philosophyDocRef, (docSnap) => {
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    form.querySelector('[name="title"]').value = data.title || '';
+                    form.querySelector('[name="description"]').value = data.description || '';
+                    form.querySelector('[name="imageUrl"]').value = data.imageUrl || '';
+                    updatePhilosophyImagePreview();
+                }
+            });
+        }
+        
+        function renderLists(products) {
+            const lists = {
+                uhr: document.getElementById('uhren-list'),
+                fahrzeug: document.getElementById('fahrzeuge-list'),
+                zubehoer: document.getElementById('zubehoer-list')
+            };
+            Object.values(lists).forEach(list => list.innerHTML = '');
+            const categorized = { uhr: [], fahrzeug: [], zubehoer: [] };
+            products.forEach(p => categorized[p.type]?.push(p));
+            for(const type in categorized) {
+                const container = lists[type];
+                if (categorized[type].length > 0) {
+                     categorized[type].forEach(p => container.innerHTML += createProductItem(p));
+                } else {
+                    container.innerHTML = `<p class="text-gray-500 text-sm p-3 bg-white rounded-md">Keine Produkte in dieser Kategorie.</p>`;
+                }
+            }
+            addListButtonListeners();
+        }
+
+        function createProductItem(product) {
+            return `<div class="bg-white p-3 rounded-md shadow-sm flex justify-between items-center"><span class="truncate pr-4">${product.name}</span><button data-id="${product.id}" class="edit-btn text-indigo-600 hover:text-indigo-800 text-sm font-semibold flex-shrink-0">Bearbeiten</button></div>`;
+        }
+        
+        function addListButtonListeners() {
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const product = allProducts.find(p => p.id === button.dataset.id);
+                    openEditModal(product);
+                });
+            });
+        }
+        
+        function openEditModal(product) {
+            const form = document.getElementById('edit-product-form');
+            form.reset();
+            form.querySelector('[name="id"]').value = product.id;
+            form.querySelector('[name="type"]').value = product.type;
+            form.querySelector('[name="name"]').value = product.name;
+            form.querySelector('[name="originalPrice"]').value = product.originalPrice || '';
+            form.querySelector('[name="salePrice"]').value = product.salePrice || '';
+            form.querySelector('[name="ricardoLink"]').value = product.ricardoLink || '';
+            form.querySelector('[name="popular"]').checked = product.popular || false;
+            form.querySelector('[name="description"]').value = product.description;
+            const mediaContainer = form.querySelector('.image-preview-container');
+            mediaContainer.innerHTML = '';
+            if (product.images && product.images.length > 0) {
+                product.images.forEach(url => mediaContainer.innerHTML += createPreviewItemHTML(url));
+            }
+            const specsContainer = form.querySelector('.specs-container');
+            updatePresetSpecs(product.type, specsContainer, product.specs);
+            editModal.classList.remove('hidden');
+        }
+
+        closeModalBtn.addEventListener('click', () => editModal.classList.add('hidden'));
+
+        document.querySelectorAll('.add-spec-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => e.target.closest('form').querySelector('.specs-container').insertAdjacentHTML('beforeend', createSpecFieldHTML()));
+        });
+        
+        addProductTypeSelector.addEventListener('change', (e) => {
+            updatePresetSpecs(e.target.value, document.querySelector('#add-product-form .specs-container'));
+        });
+        
+        function updatePresetSpecs(type, container, values = {}) {
+            container.innerHTML = '';
+            const presets = PRESET_SPECS[type] || [];
+            presets.forEach(key => {
+                container.innerHTML += createSpecFieldHTML(key, values[key] || '');
+            });
+            if (Object.keys(values).length > 0) {
+                for (const [key, value] of Object.entries(values)) {
+                    if (!presets.includes(key)) container.innerHTML += createSpecFieldHTML(key, value);
+                }
+            }
+        }
+
+        function createSpecFieldHTML(key = '', value = '') {
+            return `<div class="spec-field"><input type="text" name="spec-key" placeholder="Eigenschaft" value="${key}" class="w-1/2 p-2 border rounded-md"><input type="text" name="spec-value" placeholder="Wert" value="${value}" class="w-1/2 p-2 border rounded-md"></div>`;
+        }
+
+        document.getElementById('add-product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            addProduct(e.target);
+        });
+
+        document.getElementById('edit-product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            updateProduct(e.target);
+        });
+
+        document.getElementById('edit-settings-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+            await toggleButtonLoading(submitButton, true);
+            try {
+                const updatedData = {
+                    whatsappNumber: form.querySelector('[name="whatsappNumber"]').value,
+                    email: form.querySelector('[name="email"]').value,
+                    whatsappMessageContact: form.querySelector('[name="whatsappMessageContact"]').value,
+                    whatsappMessageProduct: form.querySelector('[name="whatsappMessageProduct"]').value
+                };
+                const settingsDocRef = doc(db, "pages", "settings");
+                await setDoc(settingsDocRef, updatedData, { merge: true });
+                alert('Einstellungen erfolgreich gespeichert!');
+            } catch (error) {
+                 console.error("Error updating settings: ", error);
+                 alert("Fehler beim Speichern: " + error.message);
+            } finally {
+                await toggleButtonLoading(submitButton, false);
+            }
+        });
+
+        document.getElementById('edit-philosophy-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const submitButton = form.querySelector('button[type="submit"]');
+            await toggleButtonLoading(submitButton, true);
+            try {
+                const formData = new FormData(form);
+                const updatedData = {
+                    title: formData.get('title'),
+                    description: formData.get('description'),
+                    imageUrl: formData.get('imageUrl')
+                };
+                const philosophyDocRef = doc(db, "pages", "philosophy");
+                await setDoc(philosophyDocRef, updatedData, { merge: true });
+                alert('"Philosophie" Sektion erfolgreich gespeichert!');
+            } catch (error) {
+                 console.error("Error updating philosophy section: ", error);
+                 alert("Fehler beim Speichern: " + error.message);
+            } finally {
+                await toggleButtonLoading(submitButton, false);
+            }
+        });
+
+        document.getElementById('delete-product-btn').addEventListener('click', async (e) => {
+            const form = e.target.closest('form');
+            const productId = form.querySelector('[name="id"]').value;
+            if (confirm(`Sind Sie sicher, dass Sie dieses Produkt endgültig löschen möchten?`)) {
+                try {
+                    await deleteDoc(doc(db, "products", productId));
+                    editModal.classList.add('hidden');
+                } catch (error) {
+                    console.error("Error deleting document: ", error);
+                    alert("Fehler beim Löschen des Produkts.");
+                }
+            }
+        });
+        
+        async function addProduct(form) {
+            const submitButton = form.querySelector('button[type="submit"]');
+            await toggleButtonLoading(submitButton, true);
+            try {
+                const newProduct = getProductDataFromForm(form);
+                newProduct.createdAt = serverTimestamp();
+                await addDoc(productsCol, newProduct);
+                form.reset();
+                form.querySelector('.image-preview-container').innerHTML = '';
+                updatePresetSpecs(addProductTypeSelector.value, form.querySelector('.specs-container'));
+                alert('Produkt erfolgreich hinzugefügt!');
+                document.querySelector('.nav-link[data-target="content-dashboard"]').click();
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                alert("Fehler beim Hinzufügen des Produkts: " + error.message);
+            } finally {
+                await toggleButtonLoading(submitButton, false);
+            }
+        }
+
+        async function updateProduct(form) {
+            const submitButton = form.querySelector('button[type="submit"]');
+            await toggleButtonLoading(submitButton, true);
+            try {
+                const productId = form.querySelector('[name="id"]').value;
+                const updatedProduct = getProductDataFromForm(form);
+                await updateDoc(doc(db, "products", productId), updatedProduct);
+                editModal.classList.add('hidden');
+            } catch (error) {
+                console.error("Error updating document: ", error);
+                alert("Fehler beim Speichern der Änderungen: " + error.message);
+            } finally {
+                await toggleButtonLoading(submitButton, false);
+            }
+        }
+
+        function getProductDataFromForm(form) {
+            const formData = new FormData(form);
+            const imageUrls = Array.from(form.querySelectorAll('.image-preview-item')).map(item => item.dataset.url);
+            const productData = {
+                type: formData.get('type'),
+                name: formData.get('name'),
+                originalPrice: formData.get('originalPrice'),
+                salePrice: formData.get('salePrice') || '',
+                ricardoLink: formData.get('ricardoLink') || '',
+                popular: form.querySelector('[name="popular"]').checked,
+                description: formData.get('description'),
+                images: imageUrls,
+                specs: {}
+            };
+            const specKeys = formData.getAll('spec-key');
+            const specValues = formData.getAll('spec-value');
+            specKeys.forEach((key, index) => {
+                if (key.trim() !== '' && specValues[index].trim() !== '') {
+                    productData.specs[key.trim()] = specValues[index].trim();
+                }
+            });
+            return productData;
+        }
+
+        function toggleButtonLoading(button, isLoading) {
+            const btnText = button.querySelector('.btn-text');
+            const loader = button.querySelector('.loader');
+            if (isLoading) {
+                btnText.classList.add('hidden');
+                loader.classList.remove('hidden');
+                button.disabled = true;
+            } else {
+                btnText.classList.remove('hidden');
+                loader.classList.add('hidden');
+                button.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
