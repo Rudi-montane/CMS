@@ -1,4 +1,4 @@
-# Wristdeal Collection Editor
+# Collection Editor
 
 A simple front-end editor for managing products and site content with Firebase (Firestore). Pure HTML/CSS/JS—no build step required.
 
