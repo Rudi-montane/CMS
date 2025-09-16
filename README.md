@@ -18,3 +18,13 @@ A simple front-end editor for managing products and site content with Firebase (
 - Firebase v10 (CDN): Auth (anonymous) and Firestore
 
 ## Project Structure
+
+
+
+## Quick Start
+1. Open `editor.html` and replace the `firebaseConfig` with your project keys.
+2. Set a new value for `CORRECT_PASSWORD` in `editor.html`.
+3. Serve locally:
+   ```bash
+   python -m http.server 8080
+
