@@ -27,4 +27,4 @@ A simple front-end editor for managing products and site content with Firebase (
 3. Serve locally:
    ```bash
    python -m http.server 8080
-
+4. open in browser `http://localhost:8080/editor.html`
